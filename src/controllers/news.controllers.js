@@ -3,7 +3,7 @@ const ApiError = require("../utils/ApiError");
 const newsController = {};
 
 // 뉴스 전체 조회
-newsController.getAllNews = async (req, res) => {
+newsController.getAllNews = async (req, res, next) => {
   try {
     const news = await News.find({});
 
@@ -16,15 +16,12 @@ newsController.getAllNews = async (req, res) => {
       data: news,
     });
   } catch (error) {
-    res.status(400).json({
-      success: false,
-      error: error.message,
-    });
+    next(error);
   }
 };
 
 // 뉴스 상세 조회
-newsController.getNewsById = async (req, res) => {
+newsController.getNewsById = async (req, res, next) => {
   try {
     const newsId = req.params.id;
     const product = await News.findById({ _id: newsId });
@@ -36,15 +33,12 @@ newsController.getNewsById = async (req, res) => {
       data: product,
     });
   } catch (error) {
-    res.status(400).json({
-      success: false,
-      error: error.message,
-    });
+    next(error);
   }
 };
 
 // 뉴스 단어로 조회
-newsController.getNewsByWord = async (req, res) => {
+newsController.getNewsByWord = async (req, res, next) => {
   try {
     const { word } = req.params;
     let query = {};
@@ -62,10 +56,7 @@ newsController.getNewsByWord = async (req, res) => {
       data: news,
     });
   } catch (error) {
-    res.status(400).json({
-      success: false,
-      error: error.message,
-    });
+    next(error);
   }
 };
 
