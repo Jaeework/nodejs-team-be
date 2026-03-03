@@ -1,18 +1,18 @@
 const express = require("express");
 const router = express.Router();
 
-const wordsController = require("../controllers/words.controller");
+const userWordsController = require("../controllers/userWords.controller");
 
 // 단어 저장
-router.post("/", wordsController.createMyWord);
+router.post("/", userWordsController.createMyWord);
 
 // 단어장 조회
-router.get("/", wordsController.getMyWords);
+router.get("/", userWordsController.getMyWords);
 
 // 상태 수정
-router.put("/:userWordId", wordsController.updateMyWord);
+router.put("/:userWordId", userWordsController.updateMyWord);
 
 // 단어 삭제
-router.delete("/:userWordId", wordsController.deleteMyWord);
+router.delete("/:userWordId", userWordsController.deleteMyWord);
 
 module.exports = router;

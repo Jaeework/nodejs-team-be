@@ -2,16 +2,16 @@ const UserWord = require("../models/UserWord");
 const Word = require("../models/Word");
 const ApiError = require("../utils/ApiError");
 
-const wordsController = {};
+const userWordsController = {};
 
 //단어 저장
-wordsController.createMyWord = async (req, res, next) => {
+userWordsController.createMyWord = async (req, res, next) => {
   try {
     const { userId } = req;
     const { wordId } = req.body;
 
     if (!userId) {
-      throw new ApiError("Unauthorized", 400, false);
+      throw new ApiError("Unauthorized", 401, false);
     }
 
     if (!wordId) {
@@ -50,7 +50,7 @@ wordsController.createMyWord = async (req, res, next) => {
 };
 
 //단어 조회, 검색, 정렬
-wordsController.getMyWords = async (req, res, next) => {
+userWordsController.getMyWords = async (req, res, next) => {
   try {
     const { userId } = req;
     const { q, status = "all", sort = "recent" } = req.query;
@@ -95,7 +95,7 @@ wordsController.getMyWords = async (req, res, next) => {
 };
 
 //학습 상태 업데이트
-wordsController.updateMyWord = async (req, res, next) => {
+userWordsController.updateMyWord = async (req, res, next) => {
   try {
     const { userId } = req;
     const { userWordId } = req.params;
@@ -129,7 +129,7 @@ wordsController.updateMyWord = async (req, res, next) => {
 };
 
 //단어 삭제
-wordsController.deleteMyWord = async (req, res, next) => {
+userWordsController.deleteMyWord = async (req, res, next) => {
   try {
     const { userId } = req;
     const { userWordId } = req.params;
@@ -156,4 +156,4 @@ wordsController.deleteMyWord = async (req, res, next) => {
   }
 };
 
-module.exports = wordsController;
+module.exports = userWordsController;
