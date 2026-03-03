@@ -5,10 +5,14 @@ const ApiError = require("../utils/ApiError");
 const wordsController = {};
 
 //단어 저장
-wordsController.createMyWord = async (req, res) => {
+wordsController.createMyWord = async (req, res, next) => {
   try {
     const { userId } = req;
     const { wordId } = req.body;
+
+    if (!userId) {
+      throw new ApiError("Unauthorized", 400, false);
+    }
 
     if (!wordId) {
       throw new ApiError("Invalid request", 400, false);
@@ -41,15 +45,12 @@ wordsController.createMyWord = async (req, res) => {
       data: newUserWord,
     });
   } catch (err) {
-    res.status(err.statusCode || 400).json({
-      success: false,
-      error: err.message,
-    });
+    next(err);
   }
 };
 
 //단어 조회, 검색, 정렬
-wordsController.getMyWords = async (req, res) => {
+wordsController.getMyWords = async (req, res, next) => {
   try {
     const { userId } = req;
     const { q, status = "all", sort = "recent" } = req.query;
@@ -60,13 +61,13 @@ wordsController.getMyWords = async (req, res) => {
 
     const filter = { user: userId };
 
-    //상태 필터
-    if (status === "done") filter.isDone = true;
-    if (status === "doing") filter.isDone = false;
-
     if (!["all", "done", "doing"].includes(status)) {
       throw new ApiError("Invalid request", 400, false);
     }
+
+    //상태 필터
+    if (status === "done") filter.isDone = true;
+    if (status === "doing") filter.isDone = false;
 
     let userWords = await UserWord.find(filter)
       .populate("word", "text meaning type tts_url")
@@ -89,15 +90,12 @@ wordsController.getMyWords = async (req, res) => {
       data: userWords,
     });
   } catch (err) {
-    res.status(err.statusCode || 400).json({
-      success: false,
-      error: err.isUserError ? err.message : null,
-    });
+    next(err);
   }
 };
 
 //학습 상태 업데이트
-wordsController.updateMyWord = async (req, res) => {
+wordsController.updateMyWord = async (req, res, next) => {
   try {
     const { userId } = req;
     const { userWordId } = req.params;
@@ -126,15 +124,12 @@ wordsController.updateMyWord = async (req, res) => {
       data: updatedWord,
     });
   } catch (err) {
-    res.status(err.statusCode || 400).json({
-      success: false,
-      error: err.isUserError ? err.message : null,
-    });
+    next(err);
   }
 };
 
 //단어 삭제
-wordsController.deleteMyWord = async (req, res) => {
+wordsController.deleteMyWord = async (req, res, next) => {
   try {
     const { userId } = req;
     const { userWordId } = req.params;
@@ -157,10 +152,7 @@ wordsController.deleteMyWord = async (req, res) => {
       data: deletedWord,
     });
   } catch (err) {
-    res.status(err.statusCode || 400).json({
-      success: false,
-      error: err.isUserError ? err.message : null,
-    });
+    next(err);
   }
 };
 
