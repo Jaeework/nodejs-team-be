@@ -112,7 +112,7 @@ wordsController.updateMyWord = async (req, res, next) => {
     const updatedWord = await UserWord.findOneAndUpdate(
       { _id: userWordId, user: userId },
       { isDone: status === "done" },
-      { new: true, runValidators: true }
+      { returnDocument: "after", runValidators: true }
     );
 
     if (!updatedWord) {
