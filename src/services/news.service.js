@@ -48,7 +48,7 @@ const fetchAndStoreNews = async () => {
         "api-key": API_KEY,
         section: "business", // 비즈니스 섹션 뉴스만 가져오기
         "show-fields": "all",
-        "page-size": 2, // 한 번에 최대 2개 기사 가져오기
+        "page-size": 1, // 한 번에 최대 1개 기사 가져오기
         "order-by": "newest", // 최신 기사부터 가져오기
       },
     });
@@ -76,6 +76,7 @@ const fetchAndStoreNews = async () => {
         console.log(`[분석 실패] ${item.webTitle}`);
         continue;
       }
+      console.log(`[분석 데이터]${JSON.stringify(aiResponse.aiData)}`);
 
       for (const data of aiResponse.aiData) {
         const newNews = await News.create({
@@ -87,20 +88,21 @@ const fetchAndStoreNews = async () => {
           level: data.level,
           source: "The Guardian",
         });
+        console.log(`[저장 완료] ${item.webTitle} (ID: ${newNews._id})`);
 
         // 단어 저장 및 NewsWord 연결
-        for (const v of data.words) {
-          const wordEntry = await Word.findOneAndUpdate(
-            { text: v.word },
-            { meaning: v.meaning, type: v.type },
-            { upsert: true, returnDocument: "after" },
-          );
-          await NewsWord.findOneAndUpdate(
-            { news: newNews._id, word: wordEntry._id },
-            { news: newNews._id, word: wordEntry._id },
-            { upsert: true },
-          );
-        }
+        //   for (const v of data.words) {
+        //     const wordEntry = await Word.findOneAndUpdate(
+        //       { text: v.word },
+        //       { meaning: v.meaning, type: v.type },
+        //       { upsert: true, returnDocument: "after" },
+        //     );
+        //     await NewsWord.findOneAndUpdate(
+        //       { news: newNews._id, word: wordEntry._id },
+        //       { news: newNews._id, word: wordEntry._id },
+        //       { upsert: true },
+        //     );
+        //   }
       }
 
       const articleEndTime = Date.now();
