@@ -43,7 +43,7 @@ newsController.getNewsByWord = async (req, res, next) => {
     const { word } = req.params;
     let query = {};
     if (word) {
-      query = { title: { $regex: word, $options: "i" } };
+      query = { content: { $regex: word, $options: "i" } };
     } else {
       throw new ApiError("검색어를 입력해주세요.", 400, true);
     }
