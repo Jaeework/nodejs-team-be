@@ -4,11 +4,6 @@ const jwt = require("jsonwebtoken");
 
 const userSchema = Schema(
   {
-    name: {
-      type: String,
-      required: true,
-      trim: true,
-    },
     nickname: {
     type: String,
     required: true

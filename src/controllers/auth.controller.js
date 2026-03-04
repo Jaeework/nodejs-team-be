@@ -11,7 +11,7 @@ exports.signup = async (req, res, next) => {
 
         const existing = await User.findOne({email});
         if(existing) {
-            return next(new ApiError(400, "이미 가입된 이메일입니다."));
+            throw new ApiError(400, "이미 가입된 이메일입니다.", true);
         }
 
         // 비밀번호 hash 로 변경, 암화화 강도(반복횟수) 10
@@ -19,7 +19,6 @@ exports.signup = async (req, res, next) => {
 
         // DB에 새로운 유저를 저장  -> user._id 값이 생성됨
         const user = await User.create({
-            name,
             nickname,
             email,
             password: hashed,  
@@ -34,7 +33,6 @@ exports.signup = async (req, res, next) => {
             token,                           // 프론트가 저장할 JWT 토큰을 같이 내려주기
             user:{                           // 프론트에서 바로 쓰기 좋게 유저 정보도 함께 내려주기
                 id:user._id,
-                name: user.name,
                 nickname:user.nickname,
                 email:user.email,
                 level:user.level,
@@ -57,7 +55,7 @@ exports.signin = async (req,res, next) => {
 
         const user = await User.findOne({email, del_flag: false});  // 탈퇴 유저 로그인 방지   
         if(!user) {
-            return next(new ApiError(400, "이메일 또는 비밀번호가 틀렸습니다."));
+            return next(new ApiError(400, "이메일 또는 비밀번호가 틀렸습니다.", true));
         }
 
         // 사용자가 입력한 평문 password와 DB에 저장된 해시 user.password를 비교
@@ -75,7 +73,6 @@ exports.signin = async (req,res, next) => {
             token,
             user: {
                 id: user._id,
-                name: user.name,
                 nickname: user.nickname,
                 email: user.email,
                 level: user.level,

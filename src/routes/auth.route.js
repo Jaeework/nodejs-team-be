@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const authController = require("../controllers/authController");
+const authController = require("../controllers/auth.controller");
 
 // 회원가입 API 라우팅
 router.post("/signup", authController.signup);
