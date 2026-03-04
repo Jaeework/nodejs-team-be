@@ -8,10 +8,9 @@ const errorHandler = require("./src/utils/errorHandler");
 const scheduler = require("./src/utils/scheduler");
 const { fetchAndStoreNews } = require("./src/services/news.service");
 
-fetchAndStoreNews();
-
 const app = express();
 
+scheduler();
 connectDB();
 
 app.use(cors({ origin: process.env.CLIENT_URL }));

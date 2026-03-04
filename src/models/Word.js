@@ -11,9 +11,15 @@ const wordSchema = Schema(
     meaning: {
       type: String,
     },
+    example: {
+      type: String,
+    },
+    example_meaning: {
+      type: String,
+    },
     type: {
       type: String,
-      enum: ["word", "idiom"],
+      enum: ["word", "idiom", "abbreviation"],
     },
     tts_url: {
       type: String,
