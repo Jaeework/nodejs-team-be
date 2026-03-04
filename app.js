@@ -8,7 +8,7 @@ const errorHandler = require("./src/utils/errorHandler");
 const scheduler = require("./src/utils/scheduler");
 const { fetchAndStoreNews } = require("./src/services/news.service");
 
-//fetchAndStoreNews();
+fetchAndStoreNews();
 
 const app = express();
 
