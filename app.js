@@ -10,14 +10,19 @@ const { fetchAndStoreNews } = require("./src/services/news.service");
 
 const app = express();
 
+
 scheduler();
 connectDB();
 
-app.use(cors({ origin: process.env.CLIENT_URL }));
+app.use(cors({
+  origin: process.env.CLIENT_URL || "*",
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use("/api", indexRouter);
 app.use(errorHandler);
+
 
 module.exports = app;
