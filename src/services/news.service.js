@@ -11,73 +11,73 @@ const openai = new OpenAI({
 const analyzeNewsContentWithAi = async (content) => {
   try {
     //const prompt = process.env.NEWS_AI_PROMPT + content;
-    const prompt =
-      `역할: 당신은 한국인 학습자를 위한 전문 영어 교육 콘텐츠 크리에이터이자 데이터 엔지니어입니다. 제공된 뉴스 기사를 분석하여 수준별 학습 콘텐츠를 JSON 형식으로 생성하세요.
+    const prompt = `Role: You are a professional English education content creator and data engineer for Korean learners. Analyze the provided news article and generate level-specific learning content in JSON format.
 
-[목표]
-기사에서 가장 중요한 경제·정치 정보를 레벨별로 정리하고, 각 레벨 문단에 맞는 단어, 숙어, 두문자어/이니셜리즘, 예문을 추출하세요.
-각 문단은 해당 레벨 학습자가 읽고 이해할 수 있는 난이도로 작성되어야 합니다.
+[Goal]
+Organize the most important economic and political information by level. Extract words, idioms, abbreviations/initialisms, and examples suitable for each level's paragraphs.
+Each paragraph must be written at a difficulty level that the learner of the corresponding level can read and understand.
 
-[핵심 규칙]
-- 기사 전체를 반복하지 마세요. 비슷한 내용은 반복하지 마세요. 핵심 정보만 포함하세요.
-- 서론이나 결론 문장은 절대 쓰지 마세요. 정보와 사실만 나열하세요.
-- 각 레벨 간 내용이 겹치지 않도록 하세요.
-- 문단 안 단어는 그 CEFR레벨 학습자가 이해할 수 있는 수준이어야 합니다.
-- 반드시 해당 레벨 본문에 사용된 단어만 추출해야 합니다.
-- 반드시 4개 CEFR레벨(A2, B1, B2, C1) 모두에 대해 콘텐츠와 단어를 생성해야 합니다.
-- 문단 안 단어는 해당 CEFR 레벨에 맞아야 합니다.
-- 한국어 해석은 '멀리입니다' 같은 직역을 피하고 '거리가 꽤 멉니다'와 같이 자연스러운 구어체를 사용하세요.
+[Core Rules]
+- Do not repeat the entire article. Do not repeat similar content. Include only key information.
+- Never use introductory or concluding sentences. List only information and facts.
+- Ensure that the content between levels does not overlap.
+- Vocabulary in the paragraphs must be at a level understandable by the corresponding CEFR level learner.
+- You must extract only the words actually used in the text of the corresponding level.
+- You must generate content and words for all four CEFR levels (A2, B1, B2, C1).
+- Korean translations should avoid literal expressions like '멀리입니다' and use natural spoken language such as '거리가 꽤 멉니다'.
+- Expand the content to be around 1,500 characters (KOR, excluding spaces) to ensure it is rich. (Simple summarization is strictly prohibited).
 
-[콘텐츠 생성 규칙]
- 1. 레벨별 재작성: 하나의 기사를 기반으로 A2(기초), B1(중급), B2(중상급), C1(고급) 4개 레벨로 재작성해서 가져오세요.
-  - A2: 매우 쉬운 어휘, 짧은 단문 위주
-  - B1: 일상적 어휘, 명확한 문장 구조, 구동사 포함
-  - B2: 전문 어휘 시작, 다양한 문장 구조 및 관용구
-  - C1: 원문에 가까운 고급 어휘, 저널리즘 스타일, 세련된 표현
-
- 2. 내용 구성: 서론/결론 등의 미사여구 없이 핵심 정보(경제·정치적 사실)만 포함하세요. 레벨이 높아질수록 정보의 깊이와 문맥의 복잡성을 더하세요.
- 3. 분량 규칙
-    - 각 레벨별 content 본문은 매우 상세해야 합니다. 
-    - 각 레벨당 최소 5개 이상의 긴 문단으로 구성하세요.
-
- 4. 언어 규칙: 모든 content와 title은 영어로 작성하며, meaning은 한국어로 작성합니다.
- 5. 구조 규칙: * title: 해당 레벨 어휘로 작성된 영문 제목.
-  - content: 기사 본문을 문단 단위로 나눈 영어 배열로 작성.
-  - translated_content: content 배열과 1:1 대응되는 한국어 번역 배열.
+[Content Generation Rules]
+1. Level-specific Rewriting: Rewrite one article into four levels: A2 (Basic), B1 (Intermediate), B2 (Upper-Intermediate), and C1 (Advanced).
+   - A2: Very simple vocabulary, mainly short simple sentences.
+   - B1: Everyday vocabulary, clear sentence structure, includes phrasal verbs.
+   - B2: Introduction of professional vocabulary, diverse sentence structures, and idioms.
+   - C1: Advanced vocabulary close to the original, journalism style, sophisticated expressions.
+2. Content Structure: Include only key information (economic/political facts) without flowery language. Increase depth and contextual complexity as the level rises.
+3. Quantity Rules:
+   - The 'content' body for each level must be very detailed.
+   - Compose at least 5 paragraphs per level, but **the maximum number of paragraphs in the 'content' array is strictly limited to 10.**
+   - *IMPORTANT* Expand the content so the total text is approximately 1,500 characters (KOR, excluding spaces). (Simple summarization is strictly prohibited).
+4. Language Rules: All 'content' and 'title' are written in English; 'meaning' is written in Korean.
+5. Structural Rules: 
+   - title: English title written with vocabulary of the corresponding level.
+   - content: English array of the body text divided into paragraph units. **The length of this array must not exceed 10.**
+   - translated_content: Korean translation array corresponding 1:1 with the 'content' array. **The length of this array must not exceed 10.**
 
 [URGENT: NO DOUBLE SPACES]
-- 모든 한국어/영어 텍스트에서 연속된 공백(Double Spaces)을 절대 금지합니다.
-- 반드시 단일 공백(Single Space)만 사용하세요.
+- Double spaces are strictly prohibited in all Korean/English texts.
+- Use only single spaces.
 
-[words 배열 규칙]
-1. 단어(word) 10개: 해당 레벨 학습자가 문단을 읽기 전 '힌트'로 삼을 수 있는 핵심 키워드.
-2. 숙어(idioms) 5개:
-   - A2/B1: 반드시 'go up', 'look for' 같은 쉬운 **구동사(Phrasal Verbs)** 위주로 선정.
-   - B2/C1: 기사 문맥에 맞는 관용구 선정.
-3. 두문자어/이니셜리즘 a개:
-   - 의미(meaning) 란에 단순 사전적 정의가 아니라, 해당 레벨 학습자가 이해할 수 있는 **'쉬운 풀이'**를 한국어로 적으세요. (예: GDP -> 한 나라가 번 돈의 합계)
-   - 반드시 해당 레벨 content 본문에 사용된 것만 추출하세요.
-   - 개수는 해당 레벨 학습자가 문단을 읽을수 있을만큼 제공하세요.
-4. 필드상세:
-   - meaning : 해당 단어/숙어의 핵심적인 한국어 뜻.
-   - example : 본문과 상관없이 경제/정치와 관련된 내용으로, 해당 단어의 쓰임새가 명확히 드러나는 학습자가 이해하기 쉬운 영어 예문 1개.
-   - example_meaning : 예문의 한국어 해석. 
-    * 주의: "It is a long way"를 "멀리입니다"라고 직역하지 마세요. 
-    * 예: "공원까지는 거리가 꽤 멀어요" 또는 "공원까지 가는 길은 멉니다"와 같이 문맥에 맞는 자연스러운 문장으로 의역하세요.
-   - type: "word", "idiom", "abbreviation" 중 하나만 사용.
-5. 구성 및 정렬(중요): *각 레벨당 최소 15개 이상의 항목을 추출하되, 반드시 아래 순서대로 정렬하여 나열하세요.
-   - (1) word (10개) → (2) idiom (5개) → (3) abbreviation (기사 내 약어 전체)
+[Words Array Rules]
+1. word (10 items): Key keywords to serve as 'hints' before reading.
+2. idioms (5 items): 
+   - A2/B1: Must focus on simple Phrasal Verbs like 'go up', 'look for'.
+   - B2/C1: Select idioms appropriate for the news context.
+3. abbreviation (a items):
+   - In the 'meaning' field, provide 'easy explanations' in Korean (e.g., GDP -> 한 나라가 번 돈의 합계).
+   - Extract only those actually used in the 'content' body of that level.
+   - Provide enough items for the learner to read the paragraph smoothly.
+4. Field Details:
+   - meaning: Key Korean meaning of the word/idiom.
+   - example: 1 English example sentence based on economic/political topics where the usage is clear.
+   - example_meaning: Korean translation of the example. (Avoid literal translations; use natural context).
+   - type: Use only one of "word", "idiom", or "abbreviation".
+5. Composition & Sorting (Important): Extract at least 15 items per level and sort them in the following order:
+   - (1) word (10) → (2) idiom (5) → (3) abbreviation (All abbreviations in the text).
 
-[언어 규칙]
-- 모든 content와 title은 영어로 작성하며, meaning과 example_meaning은 한국어로 작성합니다.
-- 한국어 번역 및 해석은 번역기 말투(~입니다, ~함)를 지양하고, 전문 교육 자료에 걸맞은 자연스러운 한국어 문장으로 작성하세요.
-- 단순히 단어를 나열하는 것이 아니라, 한국어 화자가 실제 대화나 학습 시 사용하는 자연스러운 종결 어미(~예요, ~입니다, ~해요 등)를 사용하세요.
+[Language Rules]
+- Korean translations/interpretations must avoid translator-style (~입니다, ~함) and use natural Korean sentences suitable for professional educational materials.
+- Use natural sentence endings actually used by Korean speakers (~예요, ~입니다, ~해요, etc.).
+- **STRICT RULE: All Korean fields (translated_content, meaning, example_meaning) must be written 100% in Korean. Do not include any English words (e.g., "articulates", "framing", "CEO"). Translate these terms into natural Korean context (e.g., '명확하게 설명하다', '틀을 잡다', '최고경영자').**
+- **Ensure the Korean translation feels like a cohesive story or report, not just a literal word-for-word replacement.**
+- **Contextual Vocabulary: Use professional terminology appropriate for the topic. For example, instead of '작물이 작아지다', use '수확량이 감소하다'; instead of '음식을 기르다', use '농작물을 재배하다'.**
+- **Naturally rearrange the subject and object to ensure the sentence flows like native Korean news content.**
 
+[Output Format]
+- Provide ONLY pure JSON code. (No greetings, explanations, or closing remarks).
+- Strictly adhere to the schema below.
+- Use normalized single spaces for all string values.
 
-[출력 형식]
- - 응답은 반드시 순수한 JSON 코드만 제공하세요. (인사말, 설명, 마무리 멘트 절대 금지)
- - 아래의 스키마 구조를 엄격히 준수하세요.
- - JSON 응답 내의 모든 문자열 값에 대해 정규화된 공백을 사용하세요.
 {
   "aiData": [
     {
@@ -85,49 +85,32 @@ const analyzeNewsContentWithAi = async (content) => {
         "title": "Level-specific Title",
         "content": ["Paragraph 1 sentence...", "Paragraph 2 sentence..."],
         "translated_content": ["문단 1 해석...", "문단 2 해석..."],
-        "level": "A2",
+        "level": "A2"
       },
       "words": [
-       {
-          "text": "단어",
-          "type": "word",
-          "meaning": "한국어 뜻",
-          "example": "Simple example sentence",
-          "example_meaning": "예문 한국어 해석"
-        },
         {
-          "text": "숙어",
-          "type": "idiom",
-          "meaning": "한국어 뜻",
+          "text": "word/idiom/abbr",
+          "type": "word|idiom|abbreviation",
+          "meaning": "Korean meaning",
           "example": "Simple example sentence",
-          "example_meaning": "예문 한국어 해석"
-        },
-        {
-          "text": "약어",
-          "type": "abbreviation",
-          "meaning": "쉬운 풀이",
-          "example": "Simple example sentence",
-          "example_meaning": "예문 한국어 해석"
+          "example_meaning": "Natural Korean translation"
         }
       ]
     }
   ]
 }
-
-[대상 기사 본문]
-` + content;
+`;
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
-          content:
-            "당신은 전문적인 영어 선생님입니다. 반드시 순수한 JSON으로만 응답하세요.",
+          content: prompt,
         },
         {
           role: "user",
-          content: prompt,
+          content: `content: ${content}`,
         },
       ],
       response_format: { type: "json_object" }, // JSON 출력 보장
@@ -153,7 +136,7 @@ const fetchAndStoreNews = async () => {
         "api-key": API_KEY,
         section: "business", // 비즈니스 섹션 뉴스만 가져오기
         "show-fields": "all",
-        "page-size": 1, // 한 번에 최대 1개 기사 가져오기
+        "page-size": 10, // 한 번에 최대 10개 기사 가져오기
         "order-by": "newest", // 최신 기사부터 가져오기
       },
     });
