@@ -14,6 +14,12 @@ const wordSchema = Schema(
     meaning: {
       type: String,
     },
+    example: {
+      type: String,
+    },
+    example_meaning: {
+      type: String,
+    },
     type: {
       type: String,
       enum: ["word", "idiom"],

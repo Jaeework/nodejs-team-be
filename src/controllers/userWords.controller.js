@@ -2,6 +2,8 @@ const UserWord = require("../models/UserWord");
 const Word = require("../models/Word");
 const ApiError = require("../utils/ApiError");
 
+const { Parser } = require("json2csv");
+
 const userWordsController = {};
 
 //단어 저장
@@ -176,25 +178,28 @@ userWordsController.exportMyWordsCSV = async (req, res, next) => {
     }
 
     const userWords = await UserWord.find({ user: userId })
-      .populate("word", "text meaning type")
+      .populate("word", "text meaning example example_meaning type")
       .sort({ createdAt: -1 });
 
-    // CSV 헤더
-    let csv = "word,meaning,type\n";
+    const data = userWords.map((uw) => ({
+      단어: uw.word?.text || "",
+      뜻: uw.word?.meaning || "",
+      예문: uw.word?.example || "",
+      예문뜻: uw.word?.example_meaning || "",
+      타입: uw.word?.type || "",
+    }));
 
-    userWords.forEach((uw) => {
-      const word = uw.word?.text || "";
-      const meaning = uw.word?.meaning || "";
-      const type = uw.word?.type || "";
-      const status = uw.isDone ? "done" : "doing";
+    const fields = ["단어", "뜻", "예문", "예문 해석", "유형"];
 
-      csv += `"${word}","${meaning}","${type}"\n`;
-    });
+    const parser = new Parser({ fields });
+    const csv = parser.parse(data);
 
-    res.header("Content-Type", "text/csv");
-    res.attachment("my-words.csv");
+    const today = new Date().toISOString().split("T")[0];
 
-    res.send(csv);
+    res.header("Content-Type", "text/csv; charset=utf-8");
+    res.attachment(`my-words-${today}.csv`);
+
+    res.send("\uFEFF" + csv);
   } catch (err) {
     next(err);
   }
