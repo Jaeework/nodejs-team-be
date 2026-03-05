@@ -4,4 +4,10 @@ const newsApi = require("./news.api");
 
 router.use("/news", newsApi);
 
+const authApi = require("./auth.api");
+const userApi = require("./user.api");
+
+router.use("/auth", authApi);
+router.use("/me", userApi);
+
 module.exports = router;
