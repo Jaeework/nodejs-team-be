@@ -17,12 +17,11 @@ exports.getMe = async(req, res, next)=>{
             return next(new ApiError(404, "User not found"));
         }
         return res.status(200).json({
-            status: "ok",
+            success: true,
             data: user,
         });
-        
-
+            
     }catch(error){     //   DB에러, mongoose 내부 오류, 기타 예외
-        next(error);  // 서버 쪽 문제
+        return next(error);  // 서버 쪽 문제
     }
 };
