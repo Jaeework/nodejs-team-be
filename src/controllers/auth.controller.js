@@ -90,3 +90,16 @@ exports.signin = async (req,res, next) => {
         return next(error);
     }
 };
+
+// 로그아웃 API
+// POST /api/auth/signout
+exports.signout = async (req, res, next) => {
+  try {
+    return res.status(200).json({
+      success: true,
+      data: null,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
