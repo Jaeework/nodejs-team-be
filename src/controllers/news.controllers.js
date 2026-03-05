@@ -38,26 +38,26 @@ newsController.getNewsById = async (req, res, next) => {
 };
 
 // 뉴스 단어로 조회
-newsController.getNewsByWord = async (req, res, next) => {
-  try {
-    const { word } = req.params;
-    let query = {};
-    if (word) {
-      query = { content: { $regex: word, $options: "i" } };
-    } else {
-      throw new ApiError("검색어를 입력해주세요.", 400, true);
-    }
-    const news = await News.find(query);
-    if (!news || news.length === 0) {
-      throw new ApiError("검색 결과가 없습니다.", 404, true);
-    }
-    res.status(200).json({
-      success: true,
-      data: news,
-    });
-  } catch (err) {
-    next(err);
-  }
-};
+// newsController.getNewsByWord = async (req, res, next) => {
+//   try {
+//     const { word } = req.params;
+//     let query = {};
+//     if (word) {
+//       query = { content: { $regex: word, $options: "i" } };
+//     } else {
+//       throw new ApiError("검색어를 입력해주세요.", 400, true);
+//     }
+//     const news = await News.find(query);
+//     if (!news || news.length === 0) {
+//       throw new ApiError("검색 결과가 없습니다.", 404, true);
+//     }
+//     res.status(200).json({
+//       success: true,
+//       data: news,
+//     });
+//   } catch (err) {
+//     next(err);
+//   }
+// };
 
 module.exports = newsController;
