@@ -95,6 +95,8 @@ exports.signin = async (req,res, next) => {
 // POST /api/auth/signout
 exports.signout = async (req, res, next) => {
   try {
+    // JWT 방식이면 서버에서 할 일은 거의 없음.
+    // (프론트에서 token 삭제하면 로그아웃 완료)
     return res.status(200).json({
       success: true,
       data: null,
