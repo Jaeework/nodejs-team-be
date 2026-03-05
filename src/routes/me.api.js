@@ -1,8 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const userNewsController = require("../controllers/userNews.controller");
 const authMiddleware  = require("../middlewares/auth.middleware");
+const userController = require("../controllers/user.controller");
+const userNewsController = require("../controllers/userNews.controller");
 
+router.get("/", authMiddleware, userController.getMe); 
 router.post("/news", authMiddleware, userNewsController.createUserNews);
 router.delete("/news/:id", authMiddleware, userNewsController.deleteUserNews);
 router.get("/news", authMiddleware, userNewsController.getUserNewsList);
