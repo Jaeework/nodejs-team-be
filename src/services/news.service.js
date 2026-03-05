@@ -25,10 +25,8 @@ const analyzeNewsContentWithAi = async (content) => {
 - 문단 안 단어는 그 CEFR레벨 학습자가 이해할 수 있는 수준이어야 합니다.
 - 반드시 해당 레벨 본문에 사용된 단어만 추출해야 합니다.
 - 반드시 4개 CEFR레벨(A2, B1, B2, C1) 모두에 대해 콘텐츠와 단어를 생성해야 합니다.
-- content, translated_content 배열의 최대 길이는 10개로 제한하세요.
 - 문단 안 단어는 해당 CEFR 레벨에 맞아야 합니다.
 - 한국어 해석은 '멀리입니다' 같은 직역을 피하고 '거리가 꽤 멉니다'와 같이 자연스러운 구어체를 사용하세요.
-- 콘텐츠의 전체 양이 한국어 기준 공백 제외 CHAR기준 1500자 내외가 되도록 내용을 풍부하게 확장하세요. (단순 요약 절대금지)
 
 [콘텐츠 생성 규칙]
  1. 레벨별 재작성: 하나의 기사를 기반으로 A2(기초), B1(중급), B2(중상급), C1(고급) 4개 레벨로 재작성해서 가져오세요.
@@ -41,7 +39,6 @@ const analyzeNewsContentWithAi = async (content) => {
  3. 분량 규칙
     - 각 레벨별 content 본문은 매우 상세해야 합니다. 
     - 각 레벨당 최소 5개 이상의 긴 문단으로 구성하세요.
-    - *중요* 전체 텍스트의 양이 한국어 기준 공백 제외 CHAR기준 1500자 내외가 되도록 내용을 풍부하게 확장하세요. (단순 요약 절대금지)
 
  4. 언어 규칙: 모든 content와 title은 영어로 작성하며, meaning은 한국어로 작성합니다.
  5. 구조 규칙: * title: 해당 레벨 어휘로 작성된 영문 제목.
@@ -117,10 +114,11 @@ const analyzeNewsContentWithAi = async (content) => {
   ]
 }
 
-[대상 기사 본문]` + content;
+[대상 기사 본문]
+` + content;
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-4.1-mini",
+      model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
@@ -173,32 +171,38 @@ const fetchAndStoreNews = async () => {
       );
 
       const aiResponse = await analyzeNewsContentWithAi(bodyText);
-      if (!aiResponse || !aiResponse.aiData) {
-        console.log(`[분석 실패] ${item.webTitle}`);
+      if (!aiResponse || !Array.isArray(aiResponse.aiData)) {
+        console.log(
+          `[데이터 오류] AI 응답 형식이 올바르지 않습니다. 기사: ${item.webTitle}`,
+        );
         continue;
       }
       console.log(`[분석 데이터]${JSON.stringify(aiResponse.aiData)}`);
 
       const allWordsFromAi = aiResponse.aiData.flatMap((d) => d.words);
       const uniqueWordTexts = [...new Set(allWordsFromAi.map((w) => w.text))];
-      const wordOperations = uniqueWordTexts.map((text) => {
-        const wordData = allWordsFromAi.find((w) => w.text === text);
-        return {
-          updateOne: {
-            filter: { text },
-            update: {
-              $setOnInsert: {
-                text,
-                type: wordData.type,
-                meaning: wordData.meaning,
-                example: wordData.example,
-                example_meaning: wordData.example_meaning,
+
+      const wordOperations = uniqueWordTexts
+        .map((text) => {
+          const wordData = allWordsFromAi.find((w) => w.text === text);
+          if (!wordData) return null; // 안전장치: wordData가 없는 경우 null 반환
+          return {
+            updateOne: {
+              filter: { text },
+              update: {
+                $setOnInsert: {
+                  text,
+                  type: wordData.type,
+                  meaning: wordData.meaning,
+                  example: wordData.example,
+                  example_meaning: wordData.example_meaning,
+                },
               },
+              upsert: true,
             },
-            upsert: true,
-          },
-        };
-      });
+          };
+        })
+        .filter((op) => op !== null); // null인 항목 제거
 
       // 업서트 방식으로 단어 데이터 저장
       await Word.bulkWrite(wordOperations);
@@ -268,7 +272,7 @@ const fetchAndStoreNews = async () => {
 const clearOldNews = async () => {
   try {
     await News.deleteMany({});
-    await newsWord.deleteMany({});
+    await NewsWord.deleteMany({});
     console.log("모든 뉴스 및 연관 단어 데이터가 삭제되었습니다.");
   } catch (err) {}
 };
