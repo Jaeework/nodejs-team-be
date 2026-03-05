@@ -258,13 +258,18 @@ const clearOldNews = async () => {
     const sixtyDaysAgo = new Date();
     sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
 
-    const oldNews = await News.find({ createdAt: { $lt: sixtyDaysAgo } }).select("_id");
+    const oldNews = await News.find({
+      createdAt: { $lt: sixtyDaysAgo },
+    }).select("_id");
     const oldNewsIds = oldNews.map((news) => news._id);
 
     await NewsWord.deleteMany({ news: { $in: oldNewsIds } });
     await News.deleteMany({ _id: { $in: oldNewsIds } });
 
-    console.log("60일 이상 지난 뉴스 및 연관 단어 데이터가 삭제되었습니다. 삭제된 뉴스 수:", oldNewsIds.length);
+    console.log(
+      "60일 이상 지난 뉴스 및 연관 단어 데이터가 삭제되었습니다. 삭제된 뉴스 수:",
+      oldNewsIds.length,
+    );
   } catch (err) {
     console.error("뉴스 삭제 중 에러 발생:", err.message);
   }
