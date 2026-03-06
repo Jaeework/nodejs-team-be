@@ -14,18 +14,18 @@ router.post("/words", authMiddleware, userWordsController.createMyWord);
 router.get(
   "/words/export",
   authMiddleware,
-  userWordsController.exportMyWordsCSV,
+  userWordsController.exportMyWordsCSV
 );
 router.get("/words", authMiddleware, userWordsController.getMyWords);
 router.put(
   "/words/:userWordId",
   authMiddleware,
-  userWordsController.updateMyWord,
+  userWordsController.updateMyWord
 );
 router.delete(
   "/words/:userWordId",
   authMiddleware,
-  userWordsController.deleteMyWord,
+  userWordsController.deleteMyWord
 );
 
 module.exports = router;
